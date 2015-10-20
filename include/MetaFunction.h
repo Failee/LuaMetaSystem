@@ -3,11 +3,10 @@
 
 #include <string>
 #include <assert.h>
-#include "lua\MetaVariable.h"
-#include "lua\MetaUtility.h"
-#include "Utility\string.h"
+#include "MetaType.h"
+#include "MetaVariable.h"
+#include "MetaUtility.h"
 
-// TODO increase number of Function arguments to at least 9 (@see: glTexImage2D)
 
 class FunctionSignature{
 public:
@@ -176,9 +175,9 @@ protected:
 };
 
 
-static void Apply(void(*fun)(), Variable ret, Variable *args, size_t argCount){
+static void Apply(void(*function)(), Variable ret, Variable *args, size_t argCount){
 	assert(argCount == 0);
-	fun();
+	function();
 }
 
 template <typename Ret>
@@ -608,21 +607,23 @@ static void Apply(Ret(__stdcall*fun)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6), 
 }
 #endif
 
+
 template <typename Fun>
-static void ApplyWrapperFunction(void(*fun)(), Variable ret, Variable *args, size_t argCount){
+static void ApplyWrapperFunction(void (*fun) (void), Variable ret, Variable *args, size_t argCount)
+{
 	Apply((Fun)fun, ret, args, argCount);
 }
 
 struct MetaFunction : public AutoLister<MetaFunction>{
 	template <typename Fun>
-	MetaFunction(const blues::string& name, Fun fun)
+	MetaFunction(const char* name, Fun fun)
 		: m_name(name)
 		, m_sig(fun)
 		, m_fun((void(*)())fun)
 		, m_applyWrapper(ApplyWrapperFunction<Fun>){
 	}
 
-	blues::string name() const { return m_name; }
+	const char* name() const { return m_name; }
 	const MetaType* retType() const { return m_sig.RetType(); }
 	const MetaType* argType(size_t _idx) const { return m_sig.ArgType(_idx); }
 	size_t argCount() const { return m_sig.ArgCount(); }
@@ -633,7 +634,7 @@ struct MetaFunction : public AutoLister<MetaFunction>{
 
 	friend std::ostream& operator<<(std::ostream& os, const MetaFunction& _str);
 private:
-	blues::string m_name;
+	const char* m_name;
 	FunctionSignature m_sig;
 	void(* m_fun)();
 	void(* m_applyWrapper) (void(*fun)(), Variable, Variable*, size_t);

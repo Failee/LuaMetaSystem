@@ -1,10 +1,9 @@
 #ifndef META_MEMBER_FUNCTION
 #define META_MEMBER_FUNCTION
 
-#include "Utility\string.h"
-#include "lua\MetaFunction.h"
+#include "MetaFunction.h"
 
-
+/*
 template <typename Cls>
 class MemberFunctionSignature : public FunctionSignature{
 public:
@@ -344,5 +343,5 @@ public:
 private:
 	void (Cls::*m_fun) () const;
 };
-
+*/
 #endif //META_MEMBER_FUNCTION

@@ -3,23 +3,23 @@
 
 #include <map>
 #include <assert.h>
-#include "lua\MetaType.h"
-#include "lua\MetaMemberFunction.h"
-#include "lua\MetaClassAttribute.h"
-#include "lua\MetaUtility.h"
-#include "lua\luaRegister.h"
-
+#include "MetaType.h"
+#include "MetaMemberFunction.h"
+#include "MetaClassAttribute.h"
+#include "MetaUtility.h"
+#include "luaRegister.h"
+/*
 template <typename Cls>
 class ClassMetaType : public MetaType{
 public:
-	ClassMetaType(const blues::string& _name, size_t _numFun, MetaMemberFunction<Cls>** _funs)
+	ClassMetaType(const char* _name, size_t _numFun, MetaMemberFunction<Cls>** _funs)
 		: m_name(_name)
 		, m_numFunctions(_numFun)
 		, m_Functions(_funs)
 		, m_numAttributes(0){}
 
 	template <typename Ret, typename ...Args>
-	void addMember(const blues::string& _name, Ret(Cls::*_fun)(Args...)){
+	void addMember(const char* _name, Ret(Cls::*_fun)(Args...)){
 		m_numFunctions = m_numFunctions + 1;
 		MetaMemberFunction<Cls> **temp = new MetaMemberFunction<Cls>*[m_numFunctions];
 		memcpy(temp, m_Functions, (m_numFunctions - 1)*sizeof(MetaMemberFunction<Cls>*));
@@ -29,7 +29,7 @@ public:
 	}
 
 	template <typename Ret, typename ...Args>
-	void addMember(const blues::string& _name, Ret (Cls::*_fun)(Args...) const){
+	void addMember(const char* _name, Ret (Cls::*_fun)(Args...) const){
 		m_numFunctions = m_numFunctions + 1;
 		MetaMemberFunction<Cls> **temp = new MetaMemberFunction<Cls>*[m_numFunctions];
 		memcpy(temp, m_Functions, (m_numFunctions - 1)*sizeof(MetaMemberFunction<Cls>*));
@@ -39,7 +39,7 @@ public:
 	}
 
 	template <typename Attrib>
-	void addAttribute(const blues::string& _name, const Attrib& _attrib){
+	void addAttribute(const char* _name, const Attrib& _attrib){
 		MetaClassAttribute<Cls>* attrib = new MetaClassAttribute<Cls>(_name, _attrib);
 		assert(m_Attributes.find(attrib->offset()) == m_Attributes.end());
 		m_Attributes.insert(std::pair<size_t, MetaClassAttribute<Cls>*>(attrib->offset(), attrib));
@@ -47,7 +47,7 @@ public:
 	}
 
 	size_t sizeOf() const { return sizeof(Cls); }
-	blues::string name() const { return m_name; }
+	const char* name() const { return m_name; }
 	virtual bool isBaseType() const { return false; };
 	size_t funcCount() const { return m_numFunctions; }
 	const MetaMemberFunction<Cls>* metaFunction(size_t _idx) const { return m_Functions[_idx]; }
@@ -55,8 +55,8 @@ public:
 	const MetaClassAttribute<Cls>* metaAttribute(size_t _idx) const { return m_Attributes[_idx]; } //TODO
 
 	
-	virtual blues::string toString(void *v) const {
-		blues::string str = "";
+	virtual const char* toString(void *v) const {
+		const char* str = "";
 		for (std::map<size_t, MetaClassAttribute<Cls>*>::const_iterator it = m_Attributes.begin(); it != m_Attributes.end(); it++){
 			str += it->second->type()->toString((void*)((char*)v + it->second->offset())) + ";";
 		}
@@ -127,7 +127,7 @@ public:
 	};
 	virtual const MetaType* AddressType() const { return this; };
 private:
-	blues::string m_name;
+	const char* m_name;
 	size_t m_numFunctions;
 	MetaMemberFunction<Cls> **m_Functions;
 	size_t m_numAttributes;
@@ -151,6 +151,6 @@ const ClassMetaType<Cls>* getMetaTypeByClass(){
 	static const ClassMetaType<NAMESPACE::META_CLASS>* g_Meta##NAMESPACE_##META_CLASS = define##NAMESPACE##META_CLASS();\
 	template <>\
 	static const MetaType* getMetaTypeByType<NAMESPACE::META_CLASS>() { return g_Meta##NAMESPACE_##META_CLASS; } 
-
+*/
 
 #endif //LUA_META_CLASS_TYPE_H

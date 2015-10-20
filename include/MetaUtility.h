@@ -2,10 +2,7 @@
 #define META_UTILITY_H
 
 #include <stdint.h>
-#include "Blues3\types.h"
-
-typedef bool B8;
-typedef const char* CCharPtr;
+#include "typeinfo.h"
 
 template <typename T>
 class AutoLister{

@@ -8,8 +8,8 @@ extern "C"{
 }
 
 #include <assert.h>
-#include "lua\MetaFunction.h"
-#include "lua\MetaClassType.h"
+#include "MetaFunction.h"
+#include "MetaClassType.h"
 
 template <typename Cls>
 static int MetaLuaCConstructor(lua_State* L){
@@ -90,25 +90,25 @@ static int MetaLuaCFunction(lua_State* L){
 
 static void MetaBind(lua_State* L){
 	for (const MetaFunction*p = MetaFunction::Head(); p; p = p->Next()){
-		blues::string name = p->name();
+		const char* name = p->name();
 		MetaFunction* fun = (MetaFunction*)p;
 
 		lua_pushlightuserdata(L, fun);
 		lua_pushcclosure(L, MetaLuaCFunction, 1);
-		lua_setglobal(L, name.c_str());
+		lua_setglobal(L, name);
 	}
 
 	for (const MetaType* v = MetaType::Head(); v; v = v->Next()){
 		if (!v->isBaseType()){
-			blues::string name = v->name();
+			const char* name = v->name();
 			v->luaSet(L, v->PlacementNew(alloca(v->sizeOf())));
-			lua_setglobal(L, name.c_str());
+			lua_setglobal(L, name);
 		}
 	}
 
 	for (const MetaVariable* mv = MetaVariable::Head(); mv; mv = mv->Next()){
 		mv->m_type->luaSet(L, mv->m_address);
-		lua_setglobal(L, mv->m_name.c_str());
+		lua_setglobal(L, mv->m_name);
 	}
 }
 

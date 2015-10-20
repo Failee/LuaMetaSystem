@@ -1,7 +1,7 @@
 #ifndef META_VARIABLE_H
 #define META_VARIABLE_H
 
-#include "lua\MetaType.h"
+#include "MetaType.h"
 
 #define META_REGISTER_VAR(v) \
 	MetaVariable g_metaVariable_##v(#v, v);
@@ -9,14 +9,14 @@
 
 struct MetaVariable : public AutoLister<MetaVariable>{
 	template <typename Var>
-	MetaVariable(const blues::string& _name, const Var& _var)
+	MetaVariable(const char* _name, const Var& _var)
 		: m_name(_name)
 		, m_type(getMetaTypeByType<Var>())
 	{
 		m_address = (void*)(new char[m_type->sizeOf()]);
 		memcpy(m_address, &_var, m_type->sizeOf());
 	}
-	blues::string m_name;
+	const char* m_name;
 	void* m_address;
 	const MetaType* m_type;
 };

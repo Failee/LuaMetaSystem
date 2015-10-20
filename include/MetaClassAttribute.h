@@ -2,8 +2,9 @@
 #define META_CLASS_ATTRIBUTE
 
 #include <stddef.h>
-#include "lua\MetaType.h"
+#include "MetaType.h"
 
+/*
 template <typename Cls>
 class MetaClassAttribute{
 public:
@@ -23,5 +24,6 @@ private:
 	blues::string m_name;
 	const MetaType* m_type;
 };
+*/
 
 #endif //META_CLASS_ATTRIBUTE

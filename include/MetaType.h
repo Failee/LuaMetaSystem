@@ -7,16 +7,15 @@ extern "C"{
 #include <lualib.h>
 #include <lauxlib.h>
 }
-#include "lua\MetaUtility.h"
-#include "lua\typeInfo.h"
-#include "Utility\string.h"
+#include "MetaUtility.h"
+#include "typeInfo.h"
 
 const struct MetaType : public AutoLister<MetaType>{
-	virtual blues::string name() const = 0;
+	virtual const char* name() const = 0;
 	virtual size_t sizeOf() const = 0;
-	virtual B8 isBaseType() const = 0;
+	virtual bool isBaseType() const = 0;
 
-	virtual blues::string toString(void* v) const = 0;
+	virtual const char* toString(void* v) const = 0;
 	virtual float64 toNumber(void* v) const = 0;
 
 	virtual void cast(void *to, void *from, const MetaType* fromType) const = 0;
@@ -42,11 +41,11 @@ const MetaType* getMetaTypeByType();
 // TODO typedef platform specific pointer lengths
 
 const struct VoidMetaType : public MetaType{
-	virtual blues::string name() const { return "void"; };
+	virtual const char* name() const { return "void"; };
 	virtual size_t sizeOf() const { return 0; };
-	virtual B8 isBaseType() const { return true; };
+	virtual bool isBaseType() const { return true; };
 
-	virtual blues::string toString(void* v) const { return ""; };
+	virtual const char* toString(void* v) const { return ""; };
 	virtual float64 toNumber(void* v) const { return 0; };
 
 	virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -65,15 +64,15 @@ const struct VoidMetaType : public MetaType{
 	virtual const MetaType* AddressType() const { 
 		static const MetaType* VoidMeta = this;
 		static const struct VoidStarMetaType : public MetaType{
-			virtual blues::string name() const { return VoidMeta->name() + "Ptr"; };
+			virtual const char* name() const { return "void*"; };
 			virtual size_t sizeOf() const { return sizeof(void*); };
-			virtual B8 isBaseType() const { return true; };
+			virtual bool isBaseType() const { return true; };
 
-			virtual blues::string toString(void* v) const { return std::to_string((unsigned long long)v).c_str(); };
+			virtual const char* toString(void* v) const { return std::to_string((unsigned long long)v).c_str(); };
 			virtual float64 toNumber(void* v) const { return (float64)*(unsigned long long*)v; };
 
 			virtual void cast(void *to, void *from, const MetaType* fromType) const{
-				unsigned long long ull = std::stoull(fromType->toString(*(void**)from).c_str());
+				unsigned long long ull = std::stoull(fromType->toString(*(void**)from));
 				memcpy(to, &ull, sizeOf());
 			}
 			virtual void* PlacementNew(void* buffer) const { return buffer; };
@@ -88,15 +87,15 @@ const struct VoidMetaType : public MetaType{
 			virtual const MetaType* AddressType() const {
 				static const MetaType* VoidStarMeta = this;
 				static const struct VoidStarStarMetaType : public MetaType{
-					virtual blues::string name() const { return VoidStarMeta->name() + "Ptr"; };
+					virtual const char* name() const { return "void**"; };
 					virtual size_t sizeOf() const { return sizeof(void**); };
-					virtual B8 isBaseType() const { return true; };
+					virtual bool isBaseType() const { return true; };
 
-					virtual blues::string toString(void* v) const { return std::to_string((unsigned long long)v).c_str(); };
+					virtual const char* toString(void* v) const { return std::to_string((unsigned long long)v).c_str(); };
 					virtual float64 toNumber(void* v) const { return (float64)*(unsigned long long*)v; };
 
 					virtual void cast(void *to, void *from, const MetaType* fromType) const{
-						unsigned long long ull = std::stoull(fromType->toString(*(void***)from).c_str());
+						unsigned long long ull = std::stoull(fromType->toString(*(void***)from));
 						memcpy(to, &ull, sizeOf());
 					}
 					virtual void* PlacementNew(void* buffer) const { return buffer; };
@@ -146,38 +145,38 @@ const struct VoidMetaType : public MetaType{
 } g_VoidMetaType;
 
 const struct BoolMetaType : public MetaType{
-	virtual blues::string name() const { return "B8"; };
-	virtual size_t sizeOf() const { return sizeof(B8); };
-	virtual B8 isBaseType() const { return true; };
+	virtual const char* name() const { return "bool"; };
+	virtual size_t sizeOf() const { return sizeof(bool); };
+	virtual bool isBaseType() const { return true; };
 
-	virtual blues::string toString(void* v) const { return (*(B8*)v) ? "true" : "false"; };
-	virtual float64 toNumber(void* v) const { return (*(B8*)v) ? 1 : 0; };
+	virtual const char* toString(void* v) const { return (*(bool*)v) ? "true" : "false"; };
+	virtual float64 toNumber(void* v) const { return (*(bool*)v) ? 1 : 0; };
 
 	virtual void cast(void *to, void *from, const MetaType* fromType) const{
-		B8 i = 0 != fromType->toNumber(from);
-		memcpy(to, &i, sizeof(B8));
+		bool i = 0 != fromType->toNumber(from);
+		memcpy(to, &i, sizeof(bool));
 	}
 
 	virtual void* PlacementNew(void* buffer) const {
-		memset(buffer, 0, sizeof(B8));
+		memset(buffer, 0, sizeof(bool));
 		return buffer;
 	};
 	virtual void Dtor(void* v) const { }; //no Destructor on Basic Types
-	virtual void* New() const{ return new B8; };
-	virtual void Delete(void* v) const{ delete (B8*)v; }; 
+	virtual void* New() const{ return new bool; };
+	virtual void Delete(void* v) const{ delete (bool*)v; }; 
 
 	virtual const MetaType* DereferenceType() const {
-		assert(false && "Cannot Dereference Base Type \'B8\'");
+		assert(false && "Cannot Dereference Base Type \'bool\'");
 		return this;
 	};
 	virtual const MetaType* AddressType() const { 
 		static const MetaType* BoolMeta = this;
 		static const struct BoolStarMetaType : public MetaType{
-			virtual blues::string name() const { return BoolMeta->name() + "Ptr"; };
-			virtual size_t sizeOf() const { return sizeof(B8*); };
-			virtual B8 isBaseType() const { return true; };
+			virtual const char* name() const { return "bool*"; };
+			virtual size_t sizeOf() const { return sizeof(bool*); };
+			virtual bool isBaseType() const { return true; };
 
-			virtual blues::string toString(void* v) const { return ""; };
+			virtual const char* toString(void* v) const { return ""; };
 			virtual float64 toNumber(void* v) const { return 0; };
 
 			virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -187,8 +186,8 @@ const struct BoolMetaType : public MetaType{
 				return new(buffer) bool*;
 			};
 			virtual void Dtor(void* v) const { }; //no Destructor on Basic Types
-			virtual void* New() const{ return new B8*; };
-			virtual void Delete(void* v) const{ delete (B8**)v; };
+			virtual void* New() const{ return new bool*; };
+			virtual void Delete(void* v) const{ delete (bool**)v; };
 
 			virtual const MetaType* DereferenceType() const {
 				return BoolMeta;
@@ -196,11 +195,11 @@ const struct BoolMetaType : public MetaType{
 			virtual const MetaType* AddressType() const {
 				static const MetaType* BoolStarMeta = this;
 				static const struct BoolStarStarMetaType : public MetaType{
-					virtual blues::string name() const { return BoolStarMeta->name() + "Ptr"; };
-					virtual size_t sizeOf() const { return sizeof(B8**); };
-					virtual B8 isBaseType() const { return true; };
+					virtual const char* name() const { return "bool**"; };
+					virtual size_t sizeOf() const { return sizeof(bool**); };
+					virtual bool isBaseType() const { return true; };
 
-					virtual blues::string toString(void* v) const { return ""; };
+					virtual const char* toString(void* v) const { return ""; };
 					virtual float64 toNumber(void* v) const { return 0; };
 
 					virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -210,8 +209,8 @@ const struct BoolMetaType : public MetaType{
 						return new(buffer) bool**;
 					};
 					virtual void Dtor(void* v) const { }; //no Destructor on Basic Types
-					virtual void* New() const{ return new B8**; };
-					virtual void Delete(void* v) const{ delete (B8***)v; };
+					virtual void* New() const{ return new bool**; };
+					virtual void Delete(void* v) const{ delete (bool***)v; };
 
 					virtual const MetaType* DereferenceType() const {
 						return BoolStarMeta;
@@ -241,17 +240,22 @@ const struct BoolMetaType : public MetaType{
 		lua_pushboolean(L, 0 != toNumber(v));
 	}
 	virtual void luaGet(lua_State *L, int32 index, void *v) const{
-		B8 i = (lua_toboolean(L, index) != 0);
-		memcpy(v, &i, sizeof(B8));
+		bool i = (lua_toboolean(L, index) != 0);
+		memcpy(v, &i, sizeof(bool));
 	}
 } g_BoolMetaType;
 
 const struct IntMetaType : public MetaType{
-	virtual blues::string name() const { return "int32"; };
+	virtual const char* name() const { return "int32"; };
 	virtual size_t sizeOf() const { return sizeof(int32); };
-	virtual B8 isBaseType() const { return true; };
+	virtual bool isBaseType() const { return true; };
 
-	virtual blues::string toString(void* v) const { return std::to_string(*(int32*)v).c_str(); };
+	virtual const char* toString(void* v) const { 
+        std::string str = std::to_string(*(int32*)v);
+        char* dest = new char[str.size()+1];
+        memcpy(dest, str.c_str(), str.size()+1);
+        return dest;
+    };
 	virtual float64 toNumber(void* v) const { return *(int32*)v; };
 
 	virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -274,11 +278,11 @@ const struct IntMetaType : public MetaType{
 	virtual const MetaType* AddressType() const {
 		static const MetaType* IntMeta = this;
 		static const struct IntStarMetaType : public MetaType{
-			virtual blues::string name() const { return IntMeta->name() + "Ptr"; };
+			virtual const char* name() const { return "int32*"; };
 			virtual size_t sizeOf() const { return sizeof(int32*); };
-			virtual B8 isBaseType() const { return true; };
+			virtual bool isBaseType() const { return true; };
 
-			virtual blues::string toString(void* v) const { 
+			virtual const char* toString(void* v) const { 
 				std::stringstream ss;
 				ss << v;
 				return ss.str().c_str();
@@ -303,11 +307,11 @@ const struct IntMetaType : public MetaType{
 			virtual const MetaType* AddressType() const {
 				static const MetaType* IntStarMeta = this;
 				static const struct IntStarStarMetaType : public MetaType{
-					virtual blues::string name() const { return IntStarMeta->name() + "Ptr"; };
+					virtual const char* name() const { return "int32**"; };
 					virtual size_t sizeOf() const { return sizeof(int32**); };
-					virtual B8 isBaseType() const { return true; };
+					virtual bool isBaseType() const { return true; };
 
-					virtual blues::string toString(void* v) const {
+					virtual const char* toString(void* v) const {
 						std::stringstream ss;
 						ss << v;
 						return ss.str().c_str();
@@ -355,15 +359,20 @@ const struct IntMetaType : public MetaType{
 	virtual void luaGet(lua_State *L, int32 index, void *v) const{
 		int32 d = static_cast<int32>(lua_tonumber(L, index));
 		memcpy(v, &d, sizeof(int32));
-	}
+	};
 } g_IntMetaType;
 
 const struct UnsignedIntMetaType : public MetaType{
-	virtual blues::string name() const { return "uint32"; };
+	virtual const char* name() const { return "uint32"; };
 	virtual size_t sizeOf() const { return sizeof(uint32); };
-	virtual B8 isBaseType() const { return true; };
+	virtual bool isBaseType() const { return true; };
 
-	virtual blues::string toString(void* v) const { return std::to_string(*(uint32*)v).c_str(); };
+	virtual const char* toString(void* v) const { 
+        std::string str = std::to_string(*(uint32*)v);
+        char* dest = new char[str.size()+1];
+        memcpy(dest, str.c_str(), str.size()+1);
+        return dest;
+    };
 	virtual float64 toNumber(void* v) const { return *(uint32*)v; };
 
 	virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -385,11 +394,11 @@ const struct UnsignedIntMetaType : public MetaType{
 	virtual const MetaType* AddressType() const {
 		static const MetaType* UnsignedIntMeta = this;
 		static const struct UnsignedIntStarMetaType : public MetaType{
-			virtual blues::string name() const { return UnsignedIntMeta->name() + "Ptr"; };
+			virtual const char* name() const { return "uint32*"; };
 			virtual size_t sizeOf() const { return sizeof(uint32*); };
-			virtual B8 isBaseType() const { return true; };
+			virtual bool isBaseType() const { return true; };
 
-			virtual blues::string toString(void* v) const { return ""; };
+			virtual const char* toString(void* v) const { return ""; };
 			virtual float64 toNumber(void* v) const { return 0; };
 
 			virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -408,11 +417,11 @@ const struct UnsignedIntMetaType : public MetaType{
 			virtual const MetaType* AddressType() const {
 				static const MetaType* UnsignedIntStarMeta = this;
 				static const struct UnsignedIntStarStarMetaType : public MetaType{
-					virtual blues::string name() const { return UnsignedIntStarMeta->name() + "Ptr"; };
+					virtual const char* name() const { return "uint**"; };
 					virtual size_t sizeOf() const { return sizeof(uint32**); };
-					virtual B8 isBaseType() const { return true; };
+					virtual bool isBaseType() const { return true; };
 
-					virtual blues::string toString(void* v) const { return ""; };
+					virtual const char* toString(void* v) const { return ""; };
 					virtual float64 toNumber(void* v) const { return 0; };
 
 					virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -453,11 +462,16 @@ const struct UnsignedIntMetaType : public MetaType{
 } g_UnsignedIntMetaType;
 
 const struct FloatMetaType : public MetaType{
-	virtual blues::string name() const { return "float32"; };
+	virtual const char* name() const { return "float32"; };
 	virtual size_t sizeOf() const { return sizeof(float32); };
-	virtual B8 isBaseType() const { return true; };
+	virtual bool isBaseType() const { return true; };
 
-	virtual blues::string toString(void* v) const { return std::to_string(*(float32*)v).c_str(); };
+	virtual const char* toString(void* v) const { 
+        std::string str = std::to_string(*(float32*)v);
+        char* dest = new char[str.size()+1];
+        memcpy(dest, str.c_str(), str.size()+1);
+        return dest;
+    };
 	virtual float64 toNumber(void* v) const { return *(float32*)v; };
 
 	virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -479,11 +493,11 @@ const struct FloatMetaType : public MetaType{
 	virtual const MetaType* AddressType() const {
 		static const MetaType* FloatMeta = this;
 		static const struct FloatStarMetaType : public MetaType{
-			virtual blues::string name() const { return FloatMeta->name() + "Ptr"; };
+			virtual const char* name() const { return "float32*"; };
 			virtual size_t sizeOf() const { return sizeof(float32*); };
-			virtual B8 isBaseType() const { return true; };
+			virtual bool isBaseType() const { return true; };
 
-			virtual blues::string toString(void* v) const { return ""; };
+			virtual const char* toString(void* v) const { return ""; };
 			virtual float64 toNumber(void* v) const { return 0; };
 
 			virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -502,11 +516,11 @@ const struct FloatMetaType : public MetaType{
 			virtual const MetaType* AddressType() const {
 				static const MetaType* FloatStarMeta = this;
 				static const struct FloatStarStarMetaType : public MetaType{
-					virtual blues::string name() const { return FloatStarMeta->name() + "Ptr"; };
+					virtual const char* name() const { return "float32**"; };
 					virtual size_t sizeOf() const { return sizeof(float32**); };
-					virtual B8 isBaseType() const { return true; };
+					virtual bool isBaseType() const { return true; };
 
-					virtual blues::string toString(void* v) const { return ""; };
+					virtual const char* toString(void* v) const { return ""; };
 					virtual float64 toNumber(void* v) const { return 0; };
 
 					virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -547,11 +561,16 @@ const struct FloatMetaType : public MetaType{
 } g_FloatMetaType;
 
 const struct DoubleMetaType : public MetaType{
-	virtual blues::string name() const { return "float64"; }
+	virtual const char* name() const { return "float64"; }
 	virtual size_t sizeOf() const { return sizeof(float64); }
-	virtual B8 isBaseType() const { return true; };
+	virtual bool isBaseType() const { return true; };
 
-	virtual blues::string toString(void* v) const { return std::to_string(*(float64*)v).c_str(); }
+	virtual const char* toString(void* v) const { 
+        std::string str = std::to_string(*(float64*)v);
+        char* dest = new char[str.size()+1];
+        memcpy(dest, str.c_str(), str.size()+1);
+        return dest;
+    }
 	virtual float64 toNumber(void* v) const { return *(float64*)v; }
 
 	virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -573,11 +592,11 @@ const struct DoubleMetaType : public MetaType{
 	virtual const MetaType* AddressType() const {
 		static const MetaType* DoubleMeta = this;
 		static const struct DoubleStarMetaType : public MetaType{
-			virtual blues::string name() const { return DoubleMeta->name() + "Ptr"; }
+			virtual const char* name() const { return "float64*"; }
 			virtual size_t sizeOf() const { return sizeof(float64*); }
-			virtual B8 isBaseType() const { return true; };
+			virtual bool isBaseType() const { return true; };
 
-			virtual blues::string toString(void* v) const { return ""; }
+			virtual const char* toString(void* v) const { return ""; }
 			virtual float64 toNumber(void* v) const { return 0; }
 
 			virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -596,11 +615,11 @@ const struct DoubleMetaType : public MetaType{
 			virtual const MetaType* AddressType() const {
 				static const MetaType* DoubleStarMeta = this;
 				static const struct DoubleStarStarMetaType : public MetaType{
-					virtual blues::string name() const { return DoubleStarMeta->name() + "Ptr"; }
+					virtual const char* name() const { return "float64**"; }
 					virtual size_t sizeOf() const { return sizeof(float64**); }
-					virtual B8 isBaseType() const { return true; };
+					virtual bool isBaseType() const { return true; };
 
-					virtual blues::string toString(void* v) const { return ""; }
+					virtual const char* toString(void* v) const { return ""; }
 					virtual float64 toNumber(void* v) const { return 0; }
 
 					virtual void cast(void *to, void *from, const MetaType* fromType) const{
@@ -640,146 +659,82 @@ const struct DoubleMetaType : public MetaType{
 	}
 } g_DoubleMetaType;
 
-const struct StringMetaType : public MetaType{
-	virtual blues::string name() const { return "string"; };
-	virtual size_t sizeOf() const { return sizeof(blues::string); };
-	virtual B8 isBaseType() const { return true; };
+const struct CharMetaType : public MetaType{
+    virtual const char* name() const { return "char8"; }
+    virtual size_t sizeOf() const { return sizeof(char8); }
+    virtual bool isBaseType() const { return true; }
 
-	virtual blues::string toString(void* v) const { return *(blues::string*)v; };
-	virtual float64 toNumber(void* v) const { return std::stod((*(blues::string*)v).c_str()); }; 
-	
-	virtual void cast(void *to, void *from, const MetaType* fromType) const{
-		blues::string str = fromType->toString(from);
-		new (to) blues::string(str);
-	}
+    virtual const char* toString(void* v) const { return (char8*)v; }
+    virtual float64 toNumber(void* v) const { return static_cast<float64>(*(char8*)v); }
 
-	virtual void* PlacementNew(void* buffer) const{
-		return new(buffer)blues::string();
-	};
-	virtual void Dtor(void* v) const{ 
-		reinterpret_cast<blues::string*>(v)->~string();
-	};
-	virtual void* New() const{ return new blues::string(); };
-	virtual void Delete(void* v) const{ delete (blues::string*)v; };
+    virtual void cast(void* to, void* from, const MetaType* fromType) const{
+        float64 d = fromType->toNumber(from);
+        memcpy(to, &d, sizeOf());
+    }
 
-	virtual const MetaType* DereferenceType() const {
-		assert(false && "Cannot Dereference Base Type \'string\'");
-		return this;
-	};
-	virtual const MetaType* AddressType() const {
-		static const MetaType* StringMeta = this;
-		static const struct StringStarMetaType : public MetaType{
-			virtual blues::string name() const { return StringMeta->name() + "Ptr"; };
-			virtual size_t sizeOf() const { return sizeof(blues::string*); };
-			virtual B8 isBaseType() const { return true; };
+    virtual void* PlacementNew(void* buffer) const{
+        return new(buffer) char8;
+    }
+    virtual void Dtor(void* v) const{}
+    virtual void* New() const{ return new char8; }
+    virtual void Delete(void* v) const {}
 
-			virtual blues::string toString(void* v) const { return ""; };
-			virtual float64 toNumber(void* v) const { return 0; };
+    virtual const MetaType* DereferenceType() const{
+        assert(false && "Cannot Dereference Base Type \'char8\'");
+        return nullptr;
+    }
+    virtual const MetaType* AddressType() const{
+        static const MetaType* CharMetaType = this;
+        const struct CharStarMetaType : public MetaType{
+            virtual const char* name() const { return "char8*"; };
+            virtual size_t sizeOf() const { return sizeof(char8*); };
+            virtual bool isBaseType() const { return true; };
 
-			virtual void cast(void *to, void *from, const MetaType* fromType) const{
-			}
+            virtual const char* toString(void* v) const { return (*(char8**)v); };
+            virtual float64 toNumber(void* v) const { return std::stod(*(char8**)v); };
 
-			virtual void* PlacementNew(void* buffer) const{
-				return new (buffer)blues::string*;
-			};
-			virtual void Dtor(void* v) const{
-				(*reinterpret_cast<blues::string**>(v))->~string();
-			};
-			virtual void* New() const{ return new blues::string*; };
-			virtual void Delete(void* v) const{ delete (blues::string**)v; };
+            virtual void cast(void *to, void *from, const MetaType* fromType) const{
+                const char* str = fromType->toString(from);
+                size_t len = strlen(str)+1;
+                char* destbuffer = new char[len];
+                memcpy(destbuffer, str, len);
+                memcpy(to, &destbuffer, sizeof(const char*));
+            }
 
-			virtual const MetaType* DereferenceType() const {
-				return StringMeta;
-			};
-			virtual const MetaType* AddressType() const {
-				static const MetaType* StringStarMeta = this;
-				static const struct StringStarStarMetaType : public MetaType{
-					virtual blues::string name() const { return StringStarMeta->name() + "Ptr"; };
-					virtual size_t sizeOf() const { return sizeof(blues::string**); };
-					virtual B8 isBaseType() const { return true; };
+            virtual void* PlacementNew(void* buffer) const{
+                return new (buffer) const char*;
+            };
 
-					virtual blues::string toString(void* v) const { return ""; };
-					virtual float64 toNumber(void* v) const { return 0; };
+            virtual void Dtor(void* v) const { Delete(v); }; 
+            virtual void* New() const{ return new char8*; };
+            virtual void Delete(void* v) const{ delete [] *(char8**)v; };
 
-					virtual void cast(void *to, void *from, const MetaType* fromType) const{
-					}
+            virtual const MetaType* DereferenceType() const {
+                return CharMetaType;
+            };
+            virtual const MetaType* AddressType() const { 
+                assert(false && "Too Many Stars");
+                return nullptr;
+            };
 
-					virtual void* PlacementNew(void* buffer) const{
-						return new (buffer)blues::string**;
-					};
-					virtual void Dtor(void* v) const{
-						(**reinterpret_cast<blues::string***>(v))->~string();
-					};
-					virtual void* New() const{ return new blues::string**; };
-					virtual void Delete(void* v) const{ delete (blues::string***)v; };
+            virtual void luaSet(lua_State *L, void *v) const{ lua_pushstring(L, *(char8**)v); }
+            virtual void luaGet(lua_State *L, int32 index, void *v) const{ 
+                const char8* ptr = lua_tostring(L, index); 
+                size_t len = strlen(ptr)+1;
+                char8* destbuffer = new char8[len];
+                memcpy(destbuffer, ptr, len);
+                memcpy(v, &destbuffer, sizeOf());
+            }
 
-					virtual const MetaType* DereferenceType() const {
-						return StringStarMeta;
-					};
-					virtual const MetaType* AddressType() const {
-						assert(false && "Too Many Stars");
-						return this;
-					};
+        } l_CharStarMetaType;
+        return &l_CharStarMetaType;
+    }
 
-					virtual void luaSet(lua_State *L, void *v) const{ }
-					virtual void luaGet(lua_State *L, int32 index, void *v) const{ }
-				} l_StringStarStarMetaType;
-				return &l_StringStarStarMetaType;
-			};
+    virtual void luaSet(lua_State *L, void* v) const {}
+    virtual void luaGet(lua_State *L, int32 index, void* v) const{}
 
-			virtual void luaSet(lua_State *L, void *v) const{ }
-			virtual void luaGet(lua_State *L, int32 index, void *v) const{ }
-		} l_StringStarMetaType;
-		return &l_StringStarMetaType;
-	};
+} g_CharMetaType;
 
-	virtual void luaSet(lua_State *L, void *v) const{ lua_pushstring(L, toString(v).c_str()); }
-	virtual void luaGet(lua_State *L, int32 index, void *v) const{ 
-		const char* c = lua_tostring(L, index);
-		size_t s = strlen(c);
-		new (v)blues::string(c);
-	}
-} g_StringMetaType;
-
-// TODO Fix Memory Leak!
-const struct CharStarMetaType : public MetaType{
-	virtual blues::string name() const { return "CCharPtr"; };
-	virtual size_t sizeOf() const { return sizeof(CCharPtr); };
-	virtual B8 isBaseType() const { return true; };
-
-	virtual blues::string toString(void* v) const { return blues::string(*(CCharPtr*)v); };
-	virtual float64 toNumber(void* v) const { return std::stod(*(CCharPtr*)v); };
-
-	virtual void cast(void *to, void *from, const MetaType* fromType) const{
-		blues::string str = fromType->toString(from);
-		char* destbuffer = new char[str.length()];
-		memcpy(destbuffer, str.c_str(), str.length());
-		memcpy(to, &destbuffer, sizeof(CCharPtr));
-	}
-
-	virtual void* PlacementNew(void* buffer) const{
-		return new (buffer) CCharPtr*;
-	};
-	virtual void Dtor(void* v) const { Delete(v); }; //no Destructor on Basic Types
-	virtual void* New() const{ return new CCharPtr; };
-	virtual void Delete(void* v) const{ delete [] *(CCharPtr*)v; };
-
-	virtual const MetaType* DereferenceType() const {
-		assert(false && "Cannot Dereference Base Type \'CCharPtr\'");
-		return this;
-	};
-	virtual const MetaType* AddressType() const { return this; };
-
-	virtual void luaSet(lua_State *L, void *v) const{ lua_pushstring(L, *(CCharPtr*)v); }
-	virtual void luaGet(lua_State *L, int32 index, void *v) const{ 
-		CCharPtr ptr = lua_tostring(L, index); 
-		size_t len = strlen(ptr);
-		char* destbuffer = new char[len+1];
-		memcpy(destbuffer, ptr, len+1);
-		memcpy(v, &destbuffer, sizeOf());
-	}
-
-} g_CharStarMetaType;
 
 template <typename T>
 struct RemoveOneStar{
@@ -790,7 +745,12 @@ template <typename T>
 struct RemoveOneStar < T* > {
 	typedef typename T type;
 };
-/*
+
+template <typename T>
+struct RemoveOneQualifier{
+    typedef typename T type;
+};
+
 template <typename T>
 struct RemoveOneQualifier < T& > {
 	typedef typename T type;
@@ -805,8 +765,7 @@ struct RemoveOneQualifier < const T > {
 template <typename T>
 struct RemoveOneQualifier < T&& > {
 	typedef typename T type;
-};*/
-
+};
 
 template <>
 static const MetaType* getMetaTypeByType<void>(){
@@ -814,7 +773,7 @@ static const MetaType* getMetaTypeByType<void>(){
 }
 
 template <>
-static const MetaType* getMetaTypeByType<B8>(){
+static const MetaType* getMetaTypeByType<bool>(){
 	return &g_BoolMetaType;
 }
 
@@ -829,7 +788,7 @@ static const MetaType* getMetaTypeByType<uint32>(){
 }
 
 template <>
-static const MetaType* getMetaTypeByType<float>(){
+static const MetaType* getMetaTypeByType<float32>(){
 	return &g_FloatMetaType;
 }
 
@@ -839,19 +798,23 @@ static const MetaType* getMetaTypeByType<float64>(){
 }
 
 template <>
-static const MetaType* getMetaTypeByType<blues::string>(){
-	return &g_StringMetaType;
+static const MetaType* getMetaTypeByType<char8>(){
+	return &g_CharMetaType;
 }
 
 template <>
-static const MetaType* getMetaTypeByType<CCharPtr>(){
-	return &g_CharStarMetaType;
+static const MetaType* getMetaTypeByType<const char8>(){
+    return &g_CharMetaType;
 }
 
 template <typename T>
 static const MetaType* getMetaTypeByType<T*>(){
 	return getMetaTypeByType<RemoveOneStar<T>::type>()->AddressType();
 }
-
-
+/*
+template <typename T>
+static const MetaType* getMetaTypeByType<T>(){
+    return getMetaTypeByType<RemoveOneQualifier<T>::type>();
+}
+*/
 #endif //META_TYPE_H
