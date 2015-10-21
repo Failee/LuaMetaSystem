@@ -39,7 +39,6 @@ int main(int argc, char* argv[]){
 	Window wnd = Window("Lua extension demo", 1024, 768, 40, 40, DEBUG_CONTEXT | MULTISAMPLE16 | RGB24 | ALPHA8 | DEPTH16 | DOUBLE_BUFFER);
 	
 	glEnable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	float64 startTime = wnd.elapsedTime();
 	int32 framecount = 0;
 	do{
