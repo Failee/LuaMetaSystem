@@ -24,7 +24,7 @@
 		m_keyboardKeys[_character].m_state = InputHandler::IDLE;
 	}
 
-	void InputHandler::queryMousePosition(int32& _mousePosX, int32& _mousePosY) const{
+	void InputHandler::queryMousePosition(int& _mousePosX, int& _mousePosY) const{
 		_mousePosX = m_mousePosX;
 		_mousePosY = m_mousePosY;
 	}
@@ -41,7 +41,7 @@
 		m_keyboardKeys[_character].m_state = _state;
 	}
 
-	void InputHandler::injectMousePosition(int32 _mousePosX, int32 _mousePosY){
+	void InputHandler::injectMousePosition(int _mousePosX, int _mousePosY){
 		m_mousePosX = _mousePosX;
 		m_mousePosY = _mousePosY;
 	}
@@ -50,8 +50,6 @@
 		QueryPerformanceFrequency(&frequency);
 		startCount.QuadPart = 0;
 		endCount.QuadPart = 0;
-//		startCount.tv_sec = startCount.tv_usec = 0;
-//		endCount.tv_sec = startCount.tv_usec = 0;
 		stopped = 1;
 		startTimeInMicroSec = 0;
 		endTimeInMicroSec = 0;
@@ -65,15 +63,11 @@
 		stopped = 0;
 		QueryPerformanceCounter(&startCount);
 		startTimeInMicroSec = startCount.QuadPart * (1000000.0 / frequency.QuadPart);
-/*		gettimeofday(&startCount, NULL);
-		startTimeInMicroSec = (startCount.tv_sec * 1000000.0) + startCount.tv_usec;
-*/
 	}
 
 	void InputHandler::Timer::stop(){
 		stopped = 1;
 		QueryPerformanceCounter(&endCount);
-//		gettimeofday(&endCount, NULL);
 	}
 
 	double InputHandler::Timer::getElapsedTime(){
@@ -81,11 +75,5 @@
 			QueryPerformanceCounter(&endCount);
 
 		endTimeInMicroSec = endCount.QuadPart * (1000000.0 / frequency.QuadPart);
-
-/*		if(!stopped)
-			gettimeofday(&endCount, NULL);
-
-		endTimeInMicroSec = (endCount.tv_sec * 1000000.0) + endCount.tv_usec;
-*/
 		return 0.000001 * (endTimeInMicroSec - startTimeInMicroSec);
 	}

@@ -7,7 +7,12 @@
 #include "MetaVariable.h"
 #include "MetaUtility.h"
 
-
+/**
+ * Class to describe a Function with 
+ * - return type
+ * - arg count
+ * - arg types
+ */ 
 class FunctionSignature{
 public:
 	template <typename Ret>
@@ -85,8 +90,9 @@ public:
 		m_argCount = 8;
 	}
 
+    //On x64 there is a difference between __stdcall is the same as __cdecl so compiling these functions would result in an error
+    //however it is useful to define these to make opengl function signatures possible for example
 #ifndef X_64
-
 	template <typename Ret>
 	FunctionSignature(Ret(__stdcall*)())
 		: m_retType(getMetaTypeByType<Ret>())
@@ -164,7 +170,7 @@ public:
 #endif
 
 	virtual const MetaType* RetType() const { return m_retType; }
-	virtual const MetaType* ArgType(size_t _idx) const { if (_idx < m_argCount) return m_argTypes[_idx]; else return nullptr; }
+	virtual const MetaType* ArgType(size_t _idx) const { if (_idx < m_argCount) { return m_argTypes[_idx]; }else{ assert(false && "FunctionSignature ArgType index out of range"); return nullptr; } }
 	virtual size_t ArgCount() const { return m_argCount; }
 protected:
 	FunctionSignature() {};
@@ -174,6 +180,8 @@ protected:
 	size_t m_argCount;
 };
 
+//===================================================================================================================================================================================
+//function Wrappers to call the actual function
 
 static void Apply(void(*function)(), Variable ret, Variable *args, size_t argCount){
 	assert(argCount == 0);
@@ -390,6 +398,8 @@ static void Apply(Ret(*fun)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6), Variable 
 	getMetaTypeByType<Arg6>()->Dtor(&a6);
 }
 
+
+//===================================================__stdcall==========================================================
 #ifndef X_64
 static void Apply(void(__stdcall*fun)(), Variable ret, Variable *args, size_t argCount){
 	assert(argCount == 0);

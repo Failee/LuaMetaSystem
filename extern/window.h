@@ -44,24 +44,24 @@
 	
 	class Window{
 	public:
-		Window(const char* _name, int32 _width, int32 _height, int32 _xpos, int32 _ypos, uint32 _options);
+		Window(const char* _name, int32_t _width, int32_t _height, int32_t _xpos, int32_t _ypos, uint32_t _options);
 		Window() : m_inputHandler(new InputHandler()), m_initialized(false), m_active(false) {}
 
 		~Window();
 
-		virtual bool32 processAllMessages() const;
+		virtual bool processAllMessages() const;
 		virtual void swapBuffers() const { SwapBuffers(m_hdc); }
 
 		virtual void windowResolution(int& _width, int& _height) const;
 		virtual void desktopResolution(int& _width, int& _height) const;
 
-		virtual bool32 isFullscreen() const;
-		virtual bool32 setFullscreen(bool32 _fullscreen);
-		virtual bool32 isMinimized() const { return IsIconic(m_hwnd); };
-		virtual bool32 setMinimized(bool32 _minimized) { return ShowWindow(m_hwnd, (_minimized ? SW_MINIMIZE : SW_SHOW)); };
+		virtual bool isFullscreen() const;
+		virtual bool setFullscreen(bool _fullscreen);
+		virtual bool isMinimized() const { return IsIconic(m_hwnd); };
+		virtual bool setMinimized(bool _minimized) { return ShowWindow(m_hwnd, (_minimized ? SW_MINIMIZE : SW_SHOW)); };
 
-		bool32 initialized() const { return m_initialized; }
-		bool32 active() const { return m_active; }
+		bool initialized() const { return m_initialized; }
+		bool active() const { return m_active; }
 		void deactivate() { m_active = false; }
 
 		InputHandler::ButtonState getMouseButton(InputHandler::MouseButton _button) const { return m_inputHandler->queryMouseButton(_button); }
@@ -69,16 +69,16 @@
 		/**
 		* Returns the Mouse Position in OpenGL Viewport Coordinates
 		*/
-		void getMousePos(float32& _mousePosX, float32& _mousePosY) const {
-			int32 mw, mh;
+		void getMousePos(float& _mousePosX, float& _mousePosY) const {
+			int mw, mh;
 			m_inputHandler->queryMousePosition(mw, mh);
-			int32 w, h;
+			int w, h;
 			windowResolution(w, h);
-			_mousePosX = static_cast<float32>(mw) / static_cast<float32>(w);
-			_mousePosY = 1.0f - static_cast<float32>(mh) / static_cast<float32>(h);
+			_mousePosX = static_cast<float>(mw) / static_cast<float>(w);
+			_mousePosY = 1.0f - static_cast<float>(mh) / static_cast<float>(h);
 		};
 
-		float64 elapsedTime() const{ return m_inputHandler->elapsedTime(); }
+		double elapsedTime() const{ return m_inputHandler->elapsedTime(); }
 
 		InputHandler* inputHandler(){ return m_inputHandler; }
 		const InputHandler* inputHandler() const { return m_inputHandler; }
@@ -90,12 +90,12 @@
 		HWND m_hwnd;
 		WINDOWPLACEMENT m_windowPlacement;
 
-		bool32 m_initialized;
-		bool32 m_active;
+		bool m_initialized;
+		bool m_active;
 
-		bool32 createWindow(TCHAR* _caption, TCHAR* _classname, ULONG _style, int32 _x, int32 _y, int32 _width, int32 _height);
+		bool createWindow(TCHAR* _caption, TCHAR* _classname, ULONG _style, int32_t _x, int32_t _y, int32_t _width, int32_t _height);
 
-		bool32 createOpenGLWindow(TCHAR* _name, int32 _width, int32 _height, int32 _xpos, int32 _ypos, uint32 _options);
+		bool createOpenGLWindow(TCHAR* _name, int32_t _width, int32_t _height, int32_t _xpos, int32_t _ypos, uint32_t _options);
 	};
 	
 

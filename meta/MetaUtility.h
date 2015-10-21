@@ -4,6 +4,20 @@
 #include <stdint.h>
 #include "typeinfo.h"
 
+
+template <typename type>
+void luaSetGlobal(lua_State *L, const type& _t, const char* _name){
+	getMetaTypeByType<type>()->luaSet(L, (void*)&_t);
+	lua_setglobal(L, _name);
+}
+
+template <typename type>
+void luaGetGlobal(lua_State *L, type& _t, const char* _name){
+	lua_getglobal(L, _name);
+	getMetaTypeByType<type>()->luaGet(L, -1, (void*)&_t);
+}
+
+
 template <typename T>
 class AutoLister{
 public:

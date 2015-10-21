@@ -11,6 +11,7 @@ extern "C"{
 #include "MetaFunction.h"
 #include "MetaClassType.h"
 
+//Function to create a Cls Object in lua
 template <typename Cls>
 static int MetaLuaCConstructor(lua_State* L){
 	Variable ret;
@@ -25,6 +26,7 @@ static int MetaLuaCConstructor(lua_State* L){
 	return ret.m_type->sizeOf() > 0 ? 1 : 0;
 }
 
+//Memberfunction Callback from lua
 template <typename Cls>
 static int MetaLuaCMemberFunction(lua_State* L){
 	void *upval = lua_touserdata(L, lua_upvalueindex(1));
@@ -57,6 +59,7 @@ static int MetaLuaCMemberFunction(lua_State* L){
 	return ret.m_type->sizeOf() > 0 ? 1 : 0;
 }
 
+//standard lua function callback
 static int MetaLuaCFunction(lua_State* L){
 	void *upval = lua_touserdata(L, lua_upvalueindex(1));
 	assert(upval);
@@ -88,6 +91,9 @@ static int MetaLuaCFunction(lua_State* L){
 	return (ret.m_type->sizeOf() > 0 ? 1 : 0);
 }
 
+/**
+ * Using the Autolister pattern, this functions registers the MetaFunctions, MetaVariables and MetaTypes (Classes)
+ */
 static void MetaBind(lua_State* L){
 	for (const MetaFunction*p = MetaFunction::Head(); p; p = p->Next()){
 		const char* name = p->name();
@@ -113,7 +119,7 @@ static void MetaBind(lua_State* L){
 }
 
 static int luaReadOnlyError(lua_State* L){
-	lua_pushstring(L, "Error! Attempt to modify read-only table");
+	lua_pushstring(L, "Error! Attempt to modify read-only value");
 	lua_error(L);
 	return 0;
 }

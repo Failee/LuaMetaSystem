@@ -802,19 +802,17 @@ static const MetaType* getMetaTypeByType<char8>(){
 	return &g_CharMetaType;
 }
 
-template <>
-static const MetaType* getMetaTypeByType<const char8>(){
-    return &g_CharMetaType;
-}
-
 template <typename T>
 static const MetaType* getMetaTypeByType<T*>(){
 	return getMetaTypeByType<RemoveOneStar<T>::type>()->AddressType();
 }
-/*
-template <typename T>
-static const MetaType* getMetaTypeByType<T>(){
-    return getMetaTypeByType<RemoveOneQualifier<T>::type>();
+
+
+template <>
+static const MetaType* getMetaTypeByType<const char8>(){
+    return getMetaTypeByType<char8>();
 }
-*/
+
+
+
 #endif //META_TYPE_H

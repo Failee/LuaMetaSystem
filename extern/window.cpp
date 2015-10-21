@@ -3,7 +3,7 @@
 #include <vector>
 
 
-	Window::Window(const char* _name, int32 _width, int32 _height, int32 _xpos, int32 _ypos, uint32 _options)
+	Window::Window(const char* _name, int32_t _width, int32_t _height, int32_t _xpos, int32_t _ypos, uint32_t _options)
 		: m_inputHandler(new InputHandler())
 		, m_initialized(false)
 		, m_active(false){
@@ -29,30 +29,30 @@
 			return;
 		}
 
-		auto btst = [](uint32 _reg, uint32 _mask) { return (_reg & _mask) != 0; };
+		auto btst = [](uint32_t _reg, uint32_t _mask) { return (_reg & _mask) != 0; };
 
-		int32 multisample = (btst(_options, MULTISAMPLE2) ? 2 :
+		int32_t multisample = (btst(_options, MULTISAMPLE2) ? 2 :
 			(btst(_options, MULTISAMPLE4) ? 4 :
 			(btst(_options, MULTISAMPLE8) ? 8 :
 			(btst(_options, MULTISAMPLE16) ? 16 :
 			(btst(_options, MULTISAMPLE32) ? 32 : 0)))));
 
-		const int32 rgbbits = (btst(_options, RGB16) ? 16 :
+		const int32_t rgbbits = (btst(_options, RGB16) ? 16 :
 			(btst(_options, RGB24) ? 24 :
 			(btst(_options, RGB32) ? 32 :
 			(btst(_options, RGB64) ? 64 : 32))));
 
-		const int32 alphabits = (btst(_options, ALPHA4) ? 4 :
+		const int32_t alphabits = (btst(_options, ALPHA4) ? 4 :
 			(btst(_options, ALPHA8) ? 8 :
 			(btst(_options, ALPHA12) ? 12 :
 			(btst(_options, ALPHA16) ? 16 : 0))));
 
-		const int32 depthbits = (btst(_options, DEPTH8) ? 8 :
+		const int32_t depthbits = (btst(_options, DEPTH8) ? 8 :
 			(btst(_options, DEPTH16) ? 16 :
 			(btst(_options, DEPTH24) ? 24 :
 			(btst(_options, DEPTH32) ? 32 : 24))));
 
-		const int32 stencilbits = (btst(_options, STENCIL4) ? 4 :
+		const int32_t stencilbits = (btst(_options, STENCIL4) ? 4 :
 			(btst(_options, STENCIL8) ? 8 :
 			(btst(_options, STENCIL16) ? 16 : 8)));
 
@@ -84,14 +84,14 @@
 			0, 0, 0                // layer masks ignored  
 		};
 
-		int32 nPixelFormat = ChoosePixelFormat(m_hdc, &pfd);
+		int32_t nPixelFormat = ChoosePixelFormat(m_hdc, &pfd);
 		if (nPixelFormat == 0 || SetPixelFormat(m_hdc, nPixelFormat, &pfd) <= 0){
 			GetLastError();
 			std::cerr << "Error " << GetLastError() << ": Cannot find hardware accelerated OpenGL pixel format \n";
 			return;
 		}
 
-		int32 majorVersion = -1, minorVersion = -1;
+		int32_t majorVersion = -1, minorVersion = -1;
 
 		HGLRC dummyContext = wglCreateContext(m_hdc);
 		if (dummyContext == 0){
@@ -105,7 +105,7 @@
 		const GLubyte* str = _tempglGetString(GL_VERSION);
 		sscanf_s((char*)str, "%d.%d", &majorVersion, &minorVersion);
 
-		int32 fails = LoadOpenGLFunctions(btst(_options, CORE_PROFILE));
+		int32_t fails = LoadOpenGLFunctions(btst(_options, CORE_PROFILE));
 
 
 		DeleteDC(m_hdc);
@@ -117,13 +117,13 @@
 
 		//Check Extensions
 
-		typedef BOOL(WINAPI *FPCPFARB)(HDC, const int32*, const float32*, uint32, int32*, uint32*);
-		typedef BOOL(WINAPI *FPGPFARB)(HDC, int32, int32, uint32, const int32*, int32*);
+		typedef BOOL(WINAPI *FPCPFARB)(HDC, const int32_t*, const float*, uint32_t, int32_t*, uint32_t*);
+		typedef BOOL(WINAPI *FPGPFARB)(HDC, int32_t, int32_t, uint32_t, const int32_t*, int32_t*);
 
 		FPCPFARB wglChoosePixelFormatARB = (FPCPFARB)wglGetProcAddress("wglChoosePixelFormatARB");
 		FPGPFARB wglGetPixelFormatAttribivARB = (FPGPFARB)wglGetProcAddress("wglGetPixelFormatAttribivARB");
 
-		int32 pixelFormatAttribList[] = {
+		int32_t pixelFormatAttribList[] = {
 			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
 			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
 			WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
@@ -138,8 +138,8 @@
 			0
 		};
 
-		const int32 pixelFormatAttribListSize = sizeof(pixelFormatAttribList) / sizeof(int32);
-		int32 pixelFormats[255];
+		const int32_t pixelFormatAttribListSize = sizeof(pixelFormatAttribList) / sizeof(int32_t);
+		int32_t pixelFormats[255];
 		UINT numFormats = 0;
 
 		wglChoosePixelFormatARB(m_hdc, pixelFormatAttribList, nullptr, 255, &pixelFormats[0], &numFormats);
@@ -178,11 +178,11 @@
 
 		}*/
 
-		typedef HGLRC(WINAPI * FPCCAARB)(HDC, HGLRC, const int32*);
+		typedef HGLRC(WINAPI * FPCCAARB)(HDC, HGLRC, const int32_t*);
 		FPCCAARB wglCreateContextAttribsARB = (FPCCAARB)wglGetProcAddress("wglCreateContextAttribsARB");
 
 
-		std::vector<int32> attribs;
+		std::vector<int32_t> attribs;
 		attribs.push_back(WGL_CONTEXT_MAJOR_VERSION_ARB);
 		attribs.push_back(majorVersion);
 		attribs.push_back(WGL_CONTEXT_MINOR_VERSION_ARB);
@@ -258,7 +258,7 @@
 		wglDeleteContext(hglrc);
 	}
 
-	bool32 Window::processAllMessages() const{
+	bool Window::processAllMessages() const{
 		Sleep(0);
 
 		if (m_active){
@@ -285,11 +285,11 @@
 		_height = desk.bottom;
 	}
 
-	bool32 Window::isFullscreen() const{
+	bool Window::isFullscreen() const{
 		return (GetWindowLong(m_hwnd, GWL_STYLE) & WS_OVERLAPPEDWINDOW);
 	}
 
-	bool32 Window::setFullscreen(bool32 _fullscreen){
+	bool Window::setFullscreen(bool _fullscreen){
 		if (isFullscreen() == _fullscreen)
 			return 1;
 
@@ -314,7 +314,7 @@
 		return 1;
 	}
 
-	bool32 Window::createWindow(TCHAR* _caption, TCHAR* _classname, ULONG _style, int32 _x, int32 _y, int32 _width, int32 _height){
+	bool Window::createWindow(TCHAR* _caption, TCHAR* _classname, ULONG _style, int32_t _x, int32_t _y, int32_t _width, int32_t _height){
 		const DWORD style = _style;
 		const DWORD styleEx = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 

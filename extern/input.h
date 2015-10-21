@@ -6,7 +6,6 @@
 #include <Windows.h>
 #endif
 #include <stdint.h>
-#include "typeinfo.h"
 
 	class InputHandler{
 	public:
@@ -33,17 +32,17 @@
 		void resetMouseButtonState(MouseButton _button);
 		ButtonState queryKeyboardButton(char _character) const;
 		void resetKeyboardButtonState(char _character);
-		void queryMousePosition(int32& _mousePosX, int32& _mousePosY) const;
+		void queryMousePosition(int& _mousePosX, int& _mousePosY) const;
 		double elapsedTime();
 
 		void injectMouseButton(MouseButton _button, ButtonState _state);
 		void injectKeyboardButton(char _character, ButtonState _state);
-		void injectMousePosition(int32 _mousePosX, int32 _mousePosY);
+		void injectMousePosition(int _mousePosX, int _mousePosY);
 
 
 	private:
-		int32 m_mousePosX;
-		int32 m_mousePosY;
+		int m_mousePosX;
+		int m_mousePosY;
 
 		ButtonEvent m_keyboardKeys[255];
 		ButtonEvent m_mouseButtons[3];
@@ -54,11 +53,11 @@
 			~Timer();
 			void start();
 			void stop();
-			float64 getElapsedTime();
+			double getElapsedTime();
 		private:
-			float64 startTimeInMicroSec;
-			float64 endTimeInMicroSec;
-			int8 stopped;
+			double startTimeInMicroSec;
+			double endTimeInMicroSec;
+			char stopped;
 
 			LARGE_INTEGER frequency;
 			LARGE_INTEGER startCount;
