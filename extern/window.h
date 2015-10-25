@@ -1,7 +1,7 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include "extern/input.h"
+#include "extern/input.cpp"
 #include "extern/gl.h"
 
 

@@ -8,7 +8,7 @@
 #include "MetaClassAttribute.h"
 #include "MetaUtility.h"
 #include "luaRegister.h"
-/*
+
 template <typename Cls>
 class ClassMetaType : public MetaType{
 public:
@@ -151,6 +151,6 @@ const ClassMetaType<Cls>* getMetaTypeByClass(){
 	static const ClassMetaType<NAMESPACE::META_CLASS>* g_Meta##NAMESPACE_##META_CLASS = define##NAMESPACE##META_CLASS();\
 	template <>\
 	static const MetaType* getMetaTypeByType<NAMESPACE::META_CLASS>() { return g_Meta##NAMESPACE_##META_CLASS; } 
-*/
+
 
 #endif //LUA_META_CLASS_TYPE_H

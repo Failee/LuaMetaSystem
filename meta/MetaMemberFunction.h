@@ -3,7 +3,7 @@
 
 #include "MetaFunction.h"
 
-/*
+
 template <typename Cls>
 class MemberFunctionSignature : public FunctionSignature{
 public:
@@ -279,13 +279,13 @@ template <typename Cls>
 class MetaMemberFunction{
 public:
 	template <typename Fun>
-	MetaMemberFunction(const blues::string& _name, Fun _fun)
+	MetaMemberFunction(const char* _name, Fun _fun)
 		: m_sig(_fun)
 		, m_name(_name)
 		, m_applyWrapper(ApplyWrapper<Cls, Fun>){}
 
 	virtual bool isConst() const { return m_sig.isConst(); };
-	virtual blues::string name() const { return m_name; }
+	virtual const char* name() const { return m_name; }
 	virtual const MetaType* retType() const { return m_sig.RetType(); }
 	virtual const MetaType* argType(unsigned _idx) const { return m_sig.ArgType(_idx); }
 	virtual size_t argCount() const { return m_sig.ArgCount(); }
@@ -293,7 +293,7 @@ public:
 	virtual void apply(void *cls, Variable ret, Variable* args, size_t argCount) const = 0;
 protected:
 	void(*m_applyWrapper) (void(Cls::*fun)(), Cls* cls, Variable, Variable*, size_t);
-	blues::string m_name;
+	const char* m_name;
 	MemberFunctionSignature<Cls> m_sig;
 };
 
@@ -301,7 +301,7 @@ template <typename Cls>
 class NonConstMetaMemberFunction : public MetaMemberFunction<Cls>{
 public:
 	template <typename Ret, typename ...Args>
-	NonConstMetaMemberFunction(const blues::string&	_name, Ret(Cls::*_fun)(Args...))
+	NonConstMetaMemberFunction(const char* _name, Ret(Cls::*_fun)(Args...))
 		: MetaMemberFunction<Cls>(_name, _fun)
 		, m_fun((void (Cls::*) ())_fun){
 
@@ -331,7 +331,7 @@ template <typename Cls>
 class ConstMetaMemberFunction : public MetaMemberFunction<Cls>{
 public:
 	template <typename Ret, typename ...Args>
-	ConstMetaMemberFunction(const blues::string& _name, Ret(Cls::*_fun)(Args...)const)
+	ConstMetaMemberFunction(const char* _name, Ret(Cls::*_fun)(Args...)const)
 		: MetaMemberFunction<Cls>(_name, _fun)
 		, m_fun(reinterpret_cast< void(Cls::*)()const >(_fun)){
 	}
@@ -343,5 +343,5 @@ public:
 private:
 	void (Cls::*m_fun) () const;
 };
-*/
+
 #endif //META_MEMBER_FUNCTION

@@ -37,9 +37,14 @@ const struct MetaType : public AutoLister<MetaType>{
 template <typename T>
 const MetaType* getMetaTypeByType();
 
-// TODO add address type and Dereference Type support
 // TODO typedef platform specific pointer lengths
+// TODO define addressTypes at compiletime with set recursion depth
 
+/**
+ * VoidMetaType represents - nothing.
+ * nonetheless this is useful for defining void functions etc.
+ * the addressType on the other hand is a void pointer, which represents a pointer to arbitrary data
+ */
 const struct VoidMetaType : public MetaType{
 	virtual const char* name() const { return "void"; };
 	virtual size_t sizeOf() const { return 0; };
@@ -140,7 +145,7 @@ const struct VoidMetaType : public MetaType{
 		lua_pushnil(L);
 	}
 	virtual void luaGet(lua_State *L, int32 index, void *v) const{
-		// Investigate See if this should pop the lua stack once, probably not
+		// INVESTIGATE See if this should pop the lua stack once, probably not
 	}
 } g_VoidMetaType;
 
@@ -735,7 +740,12 @@ const struct CharMetaType : public MetaType{
 
 } g_CharMetaType;
 
-
+/**
+ * The Basic Types are the only ones constructed at global scope
+ * to get the Metatype of void* for example you need to call 
+ * getMetaTypeByType<void>()->AddressType(). In order to accomplish this,
+ * this "struct function" defines a Type for a given pointer type
+ */
 template <typename T>
 struct RemoveOneStar{
 	typedef T type;
@@ -809,7 +819,7 @@ static const MetaType* getMetaTypeByType<T*>(){
 
 
 template <>
-static const MetaType* getMetaTypeByType<const char8>(){
+static const MetaType* getMetaTypeByType<char8 const>(){
     return getMetaTypeByType<char8>();
 }
 

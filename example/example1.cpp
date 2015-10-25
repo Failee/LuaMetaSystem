@@ -3,9 +3,11 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include "extern/window.cpp"
+#include "extern/gl.cpp"
+
 #include "meta/luaRegister.h"
 #include "example/luaGL.h"
-#include "extern/window.h"
 
 void error(lua_State *L, const char *fmt, ...) {
 	va_list argp;
